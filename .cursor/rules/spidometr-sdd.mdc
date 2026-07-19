@@ -1,0 +1,19 @@
+---
+description: SDD rules for Spidometr Drifttrike firmware — read AGENTS.md before any code change
+alwaysApply: true
+---
+
+# Spidometr SDD
+
+Before editing firmware, read root `AGENTS.md` and the task `handoffs/*/handoff.md`.
+
+- Canonical / working source: `sketch_jul19a/sketch_jul19a.ino`
+- Owner flashes and tests this sketch on real hardware
+- One task at a time: finish and hardware-test before starting the next
+- Do not tackle the whole project or pack multiple features into one change
+- Spec first: update `AGENTS.md` if contract/pins/EEPROM/UI change, then write `handoffs/<slug>/handoff.md`, then code
+- Do not change pins or EEPROM map without updating `AGENTS.md` first
+- One handoff = one goal; no drive-by refactors
+- No `delay()` in `loop()` unless the handoff explicitly allows a splash in `setup`
+- Prefer minimal diffs; do not sync `src/main.cpp` unless the handoff says so
+- Briefly comment new/changed code lines; do not duplicate nearby identical comments

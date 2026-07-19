@@ -1,0 +1,112 @@
+Arduino_GFX — что и где менять под плату (для себя)
+====================================================
+
+Две копии библиотеки (не путать):
+
+1) ЭТАЛОН / сток с пинами Nano 3 (не трогать как образец):
+   c:\Users\livek\Desktop\Termoregular_V1.1\libraries for the project\Arduino_GFX-master\
+   Файл: src\Arduino_GFX_Library.h
+   В самом низу (#else): SCK13 MOSI11 MISO12 CS9 DC8 RST7 BL6
+
+2) РАБОЧАЯ копия Arduino IDE (её реально подхватывает компилятор):
+   Documents\Arduino\libraries\Arduino_GFX-master\
+   Файл: src\Arduino_GFX_Library.h
+   Здесь в том же #else вручную менялись номера под Mega 2560 Pro
+   (52/51/50/53/48/49) — из‑за этого Nano через create_default ломается.
+
+Искать блок в конце Arduino_GFX_Library.h:
+  #else // default pins for Arduino Nano, Mini, Micro and more
+  #define DF_GFX_SCK ...
+  #define DF_GFX_MOSI ...
+  #define DF_GFX_MISO ...
+  #define DF_GFX_CS ...
+  #define DF_GFX_DC ...
+  #define DF_GFX_RST ...
+  #define DF_GFX_BL ...   (может быть закомментирован)
+  #endif
+
+Эти #define использует create_default_Arduino_GFX().
+Если в sketch собирать шину ЯВНО (свои номера пинов) — дефолты из .h
+можно не трогать.
+
+
+----------------------------------------------------
+Вариант A (как сейчас в рабочей копии Documents\...)
+----------------------------------------------------
+В ветке #else просто подставлены пины Mega 2560 Pro
+(эталон Nano лежит в libraries for the project, см. выше):
+
+  DF_GFX_SCK  52
+  DF_GFX_MOSI 51
+  DF_GFX_MISO 50
+  DF_GFX_CS   53
+  DF_GFX_DC   48
+  DF_GFX_RST  49
+  // DF_GFX_BL 6  — закомментирован
+
+Минус: Nano / Mini / Micro через create_default НЕ заработают —
+пинов 48…53 на Nano нет.
+
+
+----------------------------------------------------
+Вариант B (удобнее: Mega и Nano в одной библиотеке)
+----------------------------------------------------
+ПЕРЕД строкой
+  #else // default pins for Arduino Nano...
+
+вставить отдельную ветку:
+
+#elif defined(__AVR_ATmega2560__) || defined(ARDUINO_AVR_MEGA2560)
+#define DF_GFX_SCK 52
+#define DF_GFX_MOSI 51
+#define DF_GFX_MISO 50
+#define DF_GFX_CS 53
+#define DF_GFX_DC 48
+#define DF_GFX_RST 49
+// #define DF_GFX_BL 6
+
+а в #else вернуть пины Nano (сток библиотеки):
+
+#define DF_GFX_SCK 13
+#define DF_GFX_MOSI 11
+#define DF_GFX_MISO 12
+#define DF_GFX_CS 9
+#define DF_GFX_DC 8
+#define DF_GFX_RST 7
+#define DF_GFX_BL 6
+
+Важно:
+- В Arduino IDE выбрать правильную плату (Mega 2560 или Nano) —
+  от этого зависит, какой #elif сработает.
+- Mega 2560 Pro (клон) обычно тот же чип ATmega2560 —
+  хватает __AVR_ATmega2560__.
+- После обновления библиотеки через менеджер патч МОЖЕТ стереться —
+  тогда повторить правку по этой инструкции.
+
+
+----------------------------------------------------
+Вариант C (не трогать библиотеку)
+----------------------------------------------------
+В sketch не вызывать create_default_Arduino_GFX(), а создать
+Arduino_DataBus / Arduino_ILI9341 с явными пинами своей платы.
+Тогда DF_GFX_* из .h не используются.
+
+
+----------------------------------------------------
+Краткая шпаргалка пинов SPI
+----------------------------------------------------
+Arduino Nano 3 (аппаратный SPI):
+  SCK 13, MOSI 11, MISO 12
+  CS/DC/RST/BL — любые удобные (часто 9/8/7/6)
+
+Arduino Mega 2560 / Pro (аппаратная SPI):
+  SCK 52, MOSI 51, MISO 50
+  CS часто 53; DC/RST у Termoregular: 48 / 49
+
+
+----------------------------------------------------
+Связанные проекты
+----------------------------------------------------
+- Termoregular V1.1 — Mega 2560 Pro, пины как в варианте A/B (Mega)
+- Spidometr for Drifttrike — Nano 3, нужны Nano-пины или вариант B/C
+- В Spidometr см. также раздел в AGENTS.md: «Arduino_GFX: конфликт Nano ↔ Mega»
