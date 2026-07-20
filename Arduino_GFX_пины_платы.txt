@@ -3,8 +3,9 @@ Arduino_GFX — что и где менять под плату (для себя
 
 Две копии библиотеки (не путать):
 
-1) ЭТАЛОН / сток с пинами Nano 3 (не трогать как образец):
-   c:\Users\livek\Desktop\Termoregular_V1.1\libraries for the project\Arduino_GFX-master\
+1) ЭТАЛОН / сток с пинами Nano 3:
+   a) В проекте Spidometr: lib\Arduino_GFX-master\  (рабочая копия для PlatformIO)
+   b) Также: c:\Users\livek\Desktop\Termoregular_V1.1\libraries for the project\Arduino_GFX-master\
    Файл: src\Arduino_GFX_Library.h
    В самом низу (#else): SCK13 MOSI11 MISO12 CS9 DC8 RST7 BL6
 

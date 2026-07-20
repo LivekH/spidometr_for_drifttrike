@@ -43,11 +43,11 @@
 
 **Выбранный путь для Spidometr (не ломаем Termoregular):**
 
-- Рабочую библиотеку IDE **не откатываем** (остаётся патч Mega).
-- В `sketch_jul19a` **не** вызывать `create_default_Arduino_GFX()`.
-- Собирать шину / `Arduino_ILI9341` **явно** с пинами Nano (SPI 11/12/13 + CS/DC/RST из AGENTS, когда зафиксируем).
-
-Альтернатива на будущее (отдельный handoff): `#elif` Mega + Nano в `#else` в одной библиотеке — оба проекта через `create_default`.
+- В проекте лежит **сток Nano**: `lib/Arduino_GFX-master/` (`#else`: 13/11/12/9/8/7/6). Zip-бэкап: `Arduino_GFX-master.zip`.
+- `Documents/Arduino/libraries/...` с патчем Mega — **не трогаем** (Termoregular).
+- В `sketch_jul19a` явная шина Nano (не обязательно `create_default`).
+- **PlatformIO:** библиотека из `lib/` подхватывается сама.
+- **Arduino IDE:** папка `lib/` сама не подключается; для IDE либо заливка через PlatformIO/VS Code, либо временно поставить эту копию в sketchbook (осторожно: конфликт имени с рабочей Mega-копией).
 
 Пошаговая шпаргалка по `.h`: `Arduino_GFX_пины_платы.txt`.
 
@@ -218,4 +218,4 @@ loop()  → опрос ADC/Холл → кулон/расход → GUI dirty-up
 
 ---
 
-*Последнее обновление: 2026-07-19 — handoff `gui-static-mock`: условный GUI в `sketch_jul19a.ino`.*
+*Последнее обновление: 2026-07-19 — сток Arduino_GFX (Nano) в `lib/Arduino_GFX-master/`.*
