@@ -1,145 +1,203 @@
-// Spidometr — условный статический GUI 320x240 (handoff gui-static-mock)
-// Макет: New scale.svg; явные пины Nano (create_default не использовать — GFX пропатчен под Mega)
+// Spidometr — статический GUI из GUI Draw Master (handoff gui-from-draw-master)
+// Arduino_GFX, явные пины Nano (не create_default — глобальная GFX может быть под Mega)
 
 #include <Arduino_GFX_Library.h>
 
-// Пины TFT (провизорно; как сток Nano в эталоне Arduino_GFX)
 #define TFT_DC 8
 #define TFT_CS 9
 #define TFT_RST 7
 
 Arduino_DataBus *bus = new Arduino_HWSPI(TFT_DC, TFT_CS);
-Arduino_GFX *tft = new Arduino_ILI9341(bus, TFT_RST, 1 /* rotation → 320x240 */, false);
+Arduino_GFX *gfx = new Arduino_ILI9341(bus, TFT_RST, 1 /* 320x240 */, false);
 
-// Цвета (RGB565)
-#define COL_BG 0x0000
-#define COL_GRAY 0x8410
-#define COL_WHITE 0xFFFF
-#define COL_YELLOW 0xFFE0
-#define COL_GREEN 0x07E0
-#define COL_RED 0xF800
-#define COL_BLACK 0x0000
+// Экспорт GUI Draw Master — Arduino_GFX, 320x240, альбом
+void drawGui() {
+  gfx->setRotation(1);
+  gfx->fillScreen(0x0000);
 
-// Центры шкал после масштаба SVG 397x280 → 320x240
-#define SPD_CX 160
-#define SPD_CY 207
-#define GAS_CX 53
-#define GAS_CY 120
-#define BAT_CX 267
-#define BAT_CY 120
+  // внутренний круг спидометра
+  gfx->drawArc(106, 120, 100, 90, 0, 360, 0x001F);
 
-// Перевод угла GFX (0°=восток, CCW) → точка на экране (Y вниз)
-static void polarToXY(int16_t cx, int16_t cy, float deg, int16_t r, int16_t *ox, int16_t *oy) {
-  float rad = deg * 0.01745329252f;
-  *ox = cx + (int16_t)(r * cosf(rad));
-  *oy = cy - (int16_t)(r * sinf(rad));
-}
+  // внешняя окантовка
+  gfx->drawCircle(106, 120, 104, 0x4D5E);
 
-// Подпись у дуги (центр текста грубо)
-static void drawArcLabel(int16_t cx, int16_t cy, float deg, int16_t r, const char *s) {
-  int16_t x, y;
-  polarToXY(cx, cy, deg, r, &x, &y);
-  tft->setTextColor(COL_BLACK);
-  tft->setTextSize(1);
-  tft->setCursor(x - 6, y - 4);
-  tft->print(s);
-}
+  // Шкала спидометра 0…40
+  gfx->drawArc(106, 120, 76, 74, 150, 30, 0xCE9B);
+  gfx->drawLine(40, 158, 50, 153, 0xEF7E);
+  gfx->drawLine(37, 152, 43, 150, 0x6BB1);
+  gfx->drawLine(35, 146, 40, 144, 0x6BB1);
+  gfx->drawLine(33, 140, 38, 138, 0x6BB1);
+  gfx->drawLine(31, 133, 37, 132, 0x6BB1);
+  gfx->drawLine(30, 127, 36, 126, 0x6BB1);
+  gfx->drawLine(30, 120, 41, 120, 0xEF7E);
+  gfx->drawLine(30, 113, 36, 114, 0x6BB1);
+  gfx->drawLine(31, 107, 37, 108, 0x6BB1);
+  gfx->drawLine(33, 100, 38, 102, 0x6BB1);
+  gfx->drawLine(35, 94, 40, 96, 0x6BB1);
+  gfx->drawLine(37, 88, 43, 90, 0x6BB1);
+  gfx->drawLine(40, 82, 50, 88, 0xEF7E);
+  gfx->drawLine(44, 76, 49, 80, 0x6BB1);
+  gfx->drawLine(48, 71, 52, 75, 0x6BB1);
+  gfx->drawLine(52, 66, 57, 71, 0x6BB1);
+  gfx->drawLine(57, 62, 61, 66, 0x6BB1);
+  gfx->drawLine(62, 58, 66, 63, 0x6BB1);
+  gfx->drawLine(68, 54, 74, 64, 0xEF7E);
+  gfx->drawLine(74, 51, 76, 57, 0x6BB1);
+  gfx->drawLine(80, 49, 82, 54, 0x6BB1);
+  gfx->drawLine(86, 47, 88, 52, 0x6BB1);
+  gfx->drawLine(93, 45, 94, 51, 0x6BB1);
+  gfx->drawLine(99, 44, 100, 50, 0x6BB1);
+  gfx->drawLine(106, 44, 106, 55, 0xEF7E);
+  gfx->drawLine(113, 44, 112, 50, 0x6BB1);
+  gfx->drawLine(119, 45, 118, 51, 0x6BB1);
+  gfx->drawLine(126, 47, 124, 52, 0x6BB1);
+  gfx->drawLine(132, 49, 130, 54, 0x6BB1);
+  gfx->drawLine(138, 51, 136, 57, 0x6BB1);
+  gfx->drawLine(144, 54, 139, 64, 0xEF7E);
+  gfx->drawLine(150, 58, 146, 63, 0x6BB1);
+  gfx->drawLine(155, 62, 151, 66, 0x6BB1);
+  gfx->drawLine(160, 66, 155, 71, 0x6BB1);
+  gfx->drawLine(164, 71, 160, 75, 0x6BB1);
+  gfx->drawLine(168, 76, 163, 80, 0x6BB1);
+  gfx->drawLine(172, 82, 162, 88, 0xEF7E);
+  gfx->drawLine(175, 88, 169, 90, 0x6BB1);
+  gfx->drawLine(177, 94, 172, 96, 0x6BB1);
+  gfx->drawLine(179, 100, 174, 102, 0x6BB1);
+  gfx->drawLine(181, 107, 175, 108, 0x6BB1);
+  gfx->drawLine(182, 113, 176, 114, 0x6BB1);
+  gfx->drawLine(182, 120, 171, 120, 0xEF7E);
+  gfx->drawLine(182, 127, 176, 126, 0x6BB1);
+  gfx->drawLine(181, 133, 175, 132, 0x6BB1);
+  gfx->drawLine(179, 140, 174, 138, 0x6BB1);
+  gfx->drawLine(177, 146, 172, 144, 0x6BB1);
+  gfx->drawLine(175, 152, 169, 150, 0x6BB1);
+  gfx->drawLine(172, 158, 162, 153, 0xEF7E);
+  gfx->setTextColor(0xEF7E);
+  gfx->setTextSize(2);
+  gfx->setCursor(25, 156);
+  gfx->print(F("0"));
+  gfx->setTextColor(0xEF7E);
+  gfx->setTextSize(2);
+  gfx->setCursor(13, 112);
+  gfx->print(F("5"));
+  gfx->setTextColor(0xEF7E);
+  gfx->setTextSize(2);
+  gfx->setCursor(19, 69);
+  gfx->print(F("10"));
+  gfx->setTextColor(0xEF7E);
+  gfx->setTextSize(2);
+  gfx->setCursor(51, 37);
+  gfx->print(F("15"));
+  gfx->setTextColor(0xEF7E);
+  gfx->setTextSize(2);
+  gfx->setCursor(94, 25);
+  gfx->print(F("20"));
+  gfx->setTextColor(0xEF7E);
+  gfx->setTextSize(2);
+  gfx->setCursor(138, 37);
+  gfx->print(F("25"));
+  gfx->setTextColor(0xEF7E);
+  gfx->setTextSize(2);
+  gfx->setCursor(169, 69);
+  gfx->print(F("30"));
+  gfx->setTextColor(0xEF7E);
+  gfx->setTextSize(2);
+  gfx->setCursor(181, 112);
+  gfx->print(F("35"));
+  gfx->setTextColor(0xEF7E);
+  gfx->setTextSize(2);
+  gfx->setCursor(169, 156);
+  gfx->print(F("40"));
 
-// Стрелка от центра к углу на радиусе
-static void drawNeedle(int16_t cx, int16_t cy, float deg, int16_t rInner, int16_t rOuter, uint16_t color) {
-  int16_t x1, y1, x2, y2;
-  polarToXY(cx, cy, deg, rInner, &x1, &y1);
-  polarToXY(cx, cy, deg, rOuter, &x2, &y2);
-  tft->drawLine(x1, y1, x2, y2, color);
-}
+  // синяя окантовка второго прибора
+  gfx->drawArc(239, 120, 74, 59, 232, 128, 0x001F);
 
-// Большой спидометр 0…40 (дуга сверху: 180°→0° через 90°)
-static void drawSpeedGauge() {
-  // серое кольцо
-  tft->fillArc(SPD_CX, SPD_CY, 116, 100, 0, 180, COL_GRAY);
-  // белая шкала
-  tft->fillArc(SPD_CX, SPD_CY, 100, 78, 0, 180, COL_WHITE);
+  // белая окантовка второго прибора
+  gfx->drawArc(239, 120, 80, 79, 232, 128, 0xFFFF);
 
-  // метки 0…40 шаг 5 → угол 180…0
-  static const char *labs[] = {"0", "5", "10", "15", "20", "25", "30", "35", "40"};
-  for (uint8_t i = 0; i < 9; i++) {
-    float deg = 180.0f - i * 22.5f;
-    drawArcLabel(SPD_CX, SPD_CY, deg, 88, labs[i]);
-  }
+  // красный / жёлтый / зелёный сектор вольтметра
+  gfx->drawArc(239, 120, 63, 57, 235, 270, 0xF800);
+  gfx->drawArc(239, 120, 63, 57, 270, 305, 0xFFE0);
+  gfx->drawArc(239, 120, 63, 57, 305, 340, 0x07E0);
 
-  drawNeedle(SPD_CX, SPD_CY, 180.0f, 20, 72, COL_YELLOW); // условно на 0
+  // Шкала вольтметра
+  gfx->drawArc(239, 120, 59, 57, 239, 337, 0xCE9B);
+  gfx->drawLine(209, 69, 211, 74, 0xEF7E);
+  gfx->drawLine(227, 62, 228, 67, 0xEF7E);
+  gfx->drawLine(247, 62, 247, 67, 0xEF7E);
+  gfx->drawLine(267, 68, 264, 72, 0xEF7E);
+  gfx->drawLine(282, 80, 279, 83, 0xEF7E);
+  gfx->drawLine(293, 97, 289, 99, 0xEF7E);
+  gfx->setTextColor(0xFFFF);
+  gfx->setTextSize(1);
+  gfx->setCursor(196, 55);
+  gfx->print(F("20"));
+  gfx->setTextColor(0xFFFF);
+  gfx->setTextSize(1);
+  gfx->setCursor(219, 46);
+  gfx->print(F("22"));
+  gfx->setTextColor(0xFFFF);
+  gfx->setTextSize(1);
+  gfx->setCursor(243, 46);
+  gfx->print(F("24"));
+  gfx->setTextColor(0xFFFF);
+  gfx->setTextSize(1);
+  gfx->setCursor(266, 53);
+  gfx->print(F("26"));
+  gfx->setTextColor(0xFFFF);
+  gfx->setTextSize(1);
+  gfx->setCursor(285, 68);
+  gfx->print(F("28"));
+  gfx->setTextColor(0xFFFF);
+  gfx->setTextSize(1);
+  gfx->setCursor(298, 88);
+  gfx->print(F("30"));
 
-  tft->setTextColor(COL_WHITE);
-  tft->setTextSize(2);
-  tft->setCursor(SPD_CX - 28, SPD_CY - 36);
-  tft->print(F("0"));
-  tft->setTextSize(1);
-  tft->setCursor(SPD_CX - 20, SPD_CY - 18);
-  tft->print(F("km/h"));
-}
+  // газ: зелёный / жёлтый / красный (0% слева → 100% справа)
+  gfx->drawArc(239, 120, 63, 57, 90, 125, 0x07E0);
+  gfx->drawArc(239, 120, 63, 57, 55, 90, 0xFFE0);
+  gfx->drawArc(239, 120, 63, 57, 20, 55, 0xF800);
 
-// Малая шкала: белая дуга + 3 зоны; start/end в градусах GFX
-static void drawSideGauge(int16_t cx, int16_t cy, bool gasNotBat) {
-  // дуги малых шкал ~150° (углы Arduino_GFX: 0°=восток, CCW)
-  float start = gasNotBat ? 125.0f : 305.0f;
-  float end = gasNotBat ? 275.0f : 95.0f;
+  // Шкала положения ручки газа
+  gfx->drawArc(239, 120, 59, 57, 23, 121, 0xCE9B);
+  gfx->drawLine(293, 143, 289, 141, 0xEF7E);
+  gfx->drawLine(279, 163, 275, 160, 0xEF7E);
+  gfx->drawLine(257, 176, 256, 171, 0xEF7E);
+  gfx->drawLine(232, 179, 233, 174, 0xEF7E);
+  gfx->drawLine(209, 171, 211, 166, 0xEF7E);
+  gfx->setTextColor(0xEF7E);
+  gfx->setTextSize(1);
+  gfx->setCursor(295, 144);
+  gfx->print(F("100"));
+  gfx->setTextColor(0xEF7E);
+  gfx->setTextSize(1);
+  gfx->setCursor(281, 168);
+  gfx->print(F("75"));
+  gfx->setTextColor(0xEF7E);
+  gfx->setTextSize(1);
+  gfx->setCursor(255, 184);
+  gfx->print(F("50"));
+  gfx->setTextColor(0xEF7E);
+  gfx->setTextSize(1);
+  gfx->setCursor(225, 187);
+  gfx->print(F("25"));
+  gfx->setTextColor(0xEF7E);
+  gfx->setTextSize(1);
+  gfx->setCursor(199, 177);
+  gfx->print(F("0"));
 
-  tft->fillArc(cx, cy, 48, 36, start, end, COL_WHITE);
-
-  // цветные зоны ~по трети дуги (газ: зел→жёлт→красн; заряд: красн→жёлт→зел у «полного»)
-  float span = gasNotBat ? (end - start) : (end > start ? end - start : end + 360.0f - start);
-  float t1 = start + span * 0.33f;
-  float t2 = start + span * 0.66f;
-  if (gasNotBat) {
-    tft->fillArc(cx, cy, 36, 28, start, t1, COL_GREEN);
-    tft->fillArc(cx, cy, 36, 28, t1, t2, COL_YELLOW);
-    tft->fillArc(cx, cy, 36, 28, t2, end, COL_RED);
-  } else {
-    // заряд: у «100» зелёный — ближе к верхней части дуги
-    tft->fillArc(cx, cy, 36, 28, start, t1, COL_RED);
-    tft->fillArc(cx, cy, 36, 28, t1, t2, COL_YELLOW);
-    tft->fillArc(cx, cy, 36, 28, t2, end, COL_GREEN);
-  }
-
-  // метки
-  if (gasNotBat) {
-    drawArcLabel(cx, cy, 140, 42, "0");
-    drawArcLabel(cx, cy, 170, 42, "25");
-    drawArcLabel(cx, cy, 200, 42, "50");
-    drawArcLabel(cx, cy, 230, 42, "75");
-    drawArcLabel(cx, cy, 255, 42, "100");
-    drawNeedle(cx, cy, 155.0f, 8, 30, COL_YELLOW);
-    tft->setTextColor(COL_WHITE);
-    tft->setTextSize(1);
-    tft->setCursor(cx - 18, cy + 8);
-    tft->print(F("TORQUE"));
-  } else {
-    drawArcLabel(cx, cy, 40, 42, "100");
-    drawArcLabel(cx, cy, 10, 42, "75");
-    drawArcLabel(cx, cy, 340, 42, "50");
-    drawArcLabel(cx, cy, 310, 42, "25");
-    drawArcLabel(cx, cy, 280, 42, "0");
-    drawNeedle(cx, cy, 300.0f, 8, 30, COL_YELLOW);
-    tft->setTextColor(COL_WHITE);
-    tft->setTextSize(1);
-    tft->setCursor(cx - 10, cy + 8);
-    tft->print(F("V"));
-  }
-}
-
-static void drawStaticGui() {
-  tft->fillScreen(COL_BG);
-  drawSpeedGauge();
-  drawSideGauge(GAS_CX, GAS_CY, true);
-  drawSideGauge(BAT_CX, BAT_CY, false);
+  // рамка окна под стрелкой спидометра (контент — позже)
+  gfx->drawLine(53, 159, 159, 159, 0xFFFF);
+  gfx->drawArc(106, 120, 91, 90, 53, 125, 0xFFFF);
+  gfx->drawLine(53, 159, 53, 194, 0xEF7E);
+  gfx->drawLine(160, 159, 160, 193, 0xEF7E);
 }
 
 void setup() {
-  tft->begin();
-  tft->fillScreen(COL_BG);
-  drawStaticGui();
+  gfx->begin();
+  drawGui();
 }
 
 void loop() {
-  // статика; датчики/стрелки — следующие handoff
+  // статика; стрелки / датчики — следующие handoff
 }

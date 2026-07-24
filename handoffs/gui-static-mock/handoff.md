@@ -1,6 +1,6 @@
 # Handoff: gui-static-mock
 
-**Статус:** waiting hardware  
+**Статус:** superseded by `gui-from-draw-master`  
 **Канон:** `sketch_jul19a/sketch_jul19a.ino`  
 **Дата:** 2026-07-19  
 **PlatformIO `src/main.cpp`:** не синхронизировать
