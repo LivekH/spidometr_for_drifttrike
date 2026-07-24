@@ -3,9 +3,10 @@
 
 #include <Arduino_GFX_Library.h>
 
-#define TFT_DC 8
-#define TFT_CS 9
-#define TFT_RST 7
+// Пины по схеме Proteus / разводке (SPI HW: MOSI11 SCK13; MISO не используем)
+#define TFT_DC 9
+#define TFT_CS 10
+#define TFT_RST GFX_NOT_DEFINED // RST не разведён — если есть пин, прописать сюда
 
 Arduino_DataBus *bus = new Arduino_HWSPI(TFT_DC, TFT_CS);
 Arduino_GFX *gfx = new Arduino_ILI9341(bus, TFT_RST, 1 /* 320x240 */, false);
